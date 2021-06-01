@@ -79,7 +79,7 @@ async function run () {
     tag.message = core.getInput('tag_message', { required: false }).trim()
 
     if (isDryRun === "true") {
-      core.warning('The tag was not pushed because the dry_run option was set')
+      core.debug('The tag was not pushed because the dry_run option was set')
     } else {
       await tag.push()
     }
