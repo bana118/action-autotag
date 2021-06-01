@@ -72,10 +72,17 @@ async function run () {
       return
     }
 
+    // If this value is true, the tag will not be pushed
+    const isDryRun = core.getInput('dry_run', { required: false });
+
     // The tag setter will autocorrect the message if necessary.
     tag.message = core.getInput('tag_message', { required: false }).trim()
-    await tag.push()
 
+    if (isDryRun === "true") {
+      core.debug('The tag was not pushed because the dry_run option was set')
+    } else {
+      await tag.push()
+    }
     core.setOutput('tagname', tag.name)
     core.setOutput('tagsha', tag.sha)
     core.setOutput('taguri', tag.uri)
