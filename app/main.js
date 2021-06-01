@@ -63,10 +63,11 @@ async function run () {
     )
 
     if (isDryRun === "true") {
-      core.warning(`"${tag.name}" tag is not pushed because the dry_run option was set`)
+      core.warning(`"${tag.name}" tag is not pushed because the dry_run option was set.`)
+    } else {
+      core.warning(`Attempting to create ${tag.name} tag.`)
     }
 
-    core.warning(`Attempting to create ${tag.name} tag.`)
     core.setOutput('tagrequested', tag.name)
     core.setOutput('prerelease', tag.prerelease ? 'yes' : 'no')
     core.setOutput('build', tag.build ? 'yes' : 'no')
