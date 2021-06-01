@@ -17,7 +17,9 @@ async function run () {
     // Identify the tag parsing strategy
     const root = core.getInput('root', { required: false }) || core.getInput('package_root', { required: false }) || './'
     const strategy = (core.getInput('regex_pattern', { required: false }) || '').trim().length > 0 ? 'regex' : ((core.getInput('strategy', { required: false }) || 'package').trim().toLowerCase())
-    
+
+    // If this value is true, the tag will not be pushed
+    const isDryRun = core.getInput('dry_run', { required: false });
 
     // Extract the version number using the supplied strategy
     let version = core.getInput('root', { required: false })
@@ -60,6 +62,10 @@ async function run () {
       core.getInput('tag_suffix', { required: false })
     )
 
+    if (isDryRun === "true") {
+      core.warning(`"${tag.name}" tag is not pushed because the dry_run option was set`)
+    }
+
     core.warning(`Attempting to create ${tag.name} tag.`)
     core.setOutput('tagrequested', tag.name)
     core.setOutput('prerelease', tag.prerelease ? 'yes' : 'no')
@@ -67,20 +73,15 @@ async function run () {
 
     // Check for existance of tag and abort (short circuit) if it already exists.
     if (await tag.exists()) {
-      core.warning(`"${tag.name}" tag already exists.` + os.EOL)
+      core.setFailed(`"${tag.name}" tag already exists.` + os.EOL)
       core.setOutput('tagname', '')
       return
     }
 
-    // If this value is true, the tag will not be pushed
-    const isDryRun = core.getInput('dry_run', { required: false });
-
     // The tag setter will autocorrect the message if necessary.
     tag.message = core.getInput('tag_message', { required: false }).trim()
 
-    if (isDryRun === "true") {
-      core.warning('The tag was not pushed because the dry_run option was set')
-    } else {
+    if (isDryRun !== "true") {
       await tag.push()
     }
     core.setOutput('tagname', tag.name)
